@@ -1,0 +1,194 @@
+@import "rwd-variables";
+
+@function _str-explode($string, $delimiter: "") {
+  $result: ();
+  $length: str-length($string);
+
+  @if str-length($delimiter) == 0 {
+    @for $i from 1 through $length {
+      $result: append($result, str-slice($string, $i, $i));
+    }
+
+    @return $result;
+  }
+
+  $running: true;
+  $remaining: $string;
+
+  @while $running {
+    $index: str-index($remaining, $delimiter);
+
+    @if $index {
+      $slice: str-slice($remaining, 1, $index - 1);
+      $result: append($result, $slice);
+      $remaining: str-slice($remaining, $index + str-length($delimiter));
+    } @else {
+      $running: false;
+    }
+  }
+
+  @return append($result, $remaining);
+}
+
+
+@function get-expression-operator($expression) {
+  @each $operator in ('>=', '<=', '>', '<', '≥', '≤', '=') {
+    @if str-index($expression, $operator) {
+      @return $operator;
+    }
+  }
+
+  @return '';
+}
+
+@function get-expression-value($expression, $operator) {
+  $operator-index: str-index($expression, $operator);
+  $value: str-slice($expression, $operator-index + str-length($operator));
+  @return $value;
+}
+
+@function get-width-string($operator, $min: 0, $max: 0) {
+  @if $operator == '≥' {  $operator: '>='; }
+  @if $operator == '≤' {  $operator: '<='; }
+  @if $operator == '=' {
+    @if $max > 0 {
+      @return ' (min-width: ' + $min + ') and (max-width: ' + $max + ')';
+    } @else {
+      @return ' (min-width: ' + $min + ')';
+    }
+  } @else if $operator == '<' {
+    @return ' (max-width: ' + ($min - 1) + ')';
+  } @else if $operator == '>' {
+    @return ' (min-width: ' + ($max + 1) + ')';
+  } @else if $operator == '<=' {
+    @return ' (max-width: ' + $max + ')';
+  } @else if $operator == '>=' {
+    @return ' (min-width: ' + $min + ')';
+  }
+
+  @return '';
+}
+
+@function get-condition-string($viewport,$operator) {
+  @each $class, $min in $grid-breakpoints {
+    @if($class == $viewport) {
+      $max: map-get-next($grid-breakpoints,$class, 0);
+      @return get-width-string($operator,$min,$max);
+    }
+  }
+
+  @return '';
+}
+
+@function is-media-type($string) {
+  @if type-of($string) == string {
+    $types: (all, print, screen, speech, tty, tv, projection, handheld, braille, embossed, aural);
+    @for $i from 1 through length($types) {
+      $type: nth($types,$i);
+      @if $string == $type {
+        @return true;
+      }
+    }
+  }
+
+  @return false;
+}
+
+@function add-condition($conditions-string, $new-string) {
+  @if type-of($conditions-string) == null {
+    @if not(is-media-type($new-string)) {
+      $conditions-string: unquote("all");
+    }
+  }
+}
+
+@function _media($conditions...) {
+  $compiled-list: ();
+  @for $i from 1 through length($conditions) {
+    $condition: unquote(quote(nth($conditions,$i)));
+
+    // Basic String Conditions
+    @if map-has-key($condition-map, $condition) {
+      $compiled-list: append( $compiled-list, map-get( $condition-map,$condition ), comma );
+    } @else {
+      $operator: get-expression-operator($condition);
+      $value: get-expression-value($condition,$operator);
+      @if map-has-key($grid-breakpoints, $value) {
+        // Breakpoint Based Conditions
+        $compiled-list: append($compiled-list, get-condition-string($value, $operator), comma);
+      } @else {
+        // Width Based Condition
+        $compiled-list: append($compiled-list, get-width-string($operator,$value,$value), comma );
+      }
+    }
+  }
+
+  $conditions-string: '';
+  @for $i from 1 through length($compiled-list) {
+    $this: nth($compiled-list, $i);
+    $last: if($i > 1, nth($compiled-list, $i - 1), null);
+    $sep: '';
+
+    @if $i == 1 and $conditions-string == '' and not(is-media-type($this)) {
+      $last: all;
+      $conditions-string: all;
+    }
+
+    @if $conditions-string != '' {
+      @if is-media-type($last) and not(is-media-type($this)) {
+        $sep: unquote(" and ");
+      } @else {
+        $sep: unquote(", ");
+      }
+    }
+
+    $conditions-string: $conditions-string + $sep + $this;
+  }
+
+  @return $conditions-string;
+}
+
+@function _browser-target($browser, $version: null, $negate: false) {
+  $sep: '';
+  @if map-has-key($target-user-agent,$browser) {
+    $ua:     unquote(map-get($target-user-agent, $browser));
+    $sep:    if($version,'/','');
+    $ua-sel: unquote('[data-user-agent="#{$ua}#{$sep}#{$version}"]');
+
+    @return if($negate,unquote(":not(#{$ua-sel})"),$ua-sel);
+  }
+
+  @return null;
+}
+
+@function _feature-target($feature, $negate: false) {
+  @if map-has-key($target-feature, $feature) {
+    $sel: unquote(map-get($target-feature, $feature));
+
+    @return if($negate, unquote(":not(#{$sel})"), $sel);
+  }
+
+  @return null;
+}
+
+
+@function _target($targets...) {
+  $class: '';
+  $ua: '';
+  @for $i from 1 through length($targets) {
+    $list: _str-explode(nth($targets,$i)," ");
+    $negate: if(nth($list,1) == unquote("not"), true, false);
+    $criteria: if($negate, nth($list,2), nth($list,1));
+
+    @if(map-has-key($target-user-agent,$criteria)) {
+      $browser: $criteria;
+      $v-index: if($negate, 3, 2);
+      $version: if(length($list) >= $v-index, nth($list,$v-index), null);
+      $ua:      $ua + _browser-target( $criteria, $version, $negate );
+    } @else {
+      $class: $class + _feature-target( $criteria, $negate );
+    }
+  }
+
+  @return unquote('html#{$class}#{$ua}');
+}

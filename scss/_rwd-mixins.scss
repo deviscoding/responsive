@@ -1,0 +1,57 @@
+@import "rwd-variables";
+@import "rwd-functions";
+
+// Used with @include media("<sm",">xs") etc.
+@mixin media($conditions...) {
+  @media #{_media($conditions...)} {
+    @content;
+  }
+}
+
+@mixin only-touch() {
+  @media #{_media("screen", "touch")} {
+    @content;
+  }
+}
+
+@mixin only-fallback() {
+  #{_target("fallback")} {
+    @content;
+  }
+}
+
+@mixin only-baseline() {
+  #{_target("baseline")} {
+    @content;
+  }
+}
+
+@mixin only-safari() {
+  #{_target("safari")} {
+    @content;
+  }
+}
+
+@mixin only-safari-10() {
+  #{_target("safari")} {
+    @content;
+  }
+}
+
+@mixin only-edge() {
+  #{_target("edge")} {
+    @content;
+  }
+}
+
+@mixin only-ie() {
+  #{_target("ie")} {
+    @content;
+  }
+}
+
+@mixin only-ie-10() {
+  #{_target("ie 10")} {
+    @content;
+  }
+}
