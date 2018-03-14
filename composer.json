@@ -1,0 +1,24 @@
+{
+  "name": "strapless/responsive",
+  "description": "SASS utilities for responsive web design.",
+  "keywords": [
+      "responsive",
+      "sass",
+      "scss",
+      "strapless",
+      "css"
+  ],
+  "homepage": "https://www.github.com/strapless/responsive",
+  "version": "1.0",
+  "authors": [
+      {
+          "name": "Aaron M Jones",
+          "homepage": "http://www.jonesiscoding.com"
+      }
+  ],
+  "license": "MIT",
+  "require": {
+    "strapless/base": "^1.1",
+    "exactquery/xq-detect": "^2.2"
+  }
+}

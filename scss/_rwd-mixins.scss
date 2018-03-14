@@ -1,57 +1,119 @@
 @import "rwd-variables";
 @import "rwd-functions";
 
-// Used with @include media("<sm",">xs") etc.
+// Wraps the given content in the appropriate media
+// query for the given conditions.  If no media type
+// is included in the conditions, the 'all' media type
+// is used.
 @mixin media($conditions...) {
   @media #{_media($conditions...)} {
     @content;
   }
 }
 
+// Wraps the given content in a media query targeting
+// devices without a 'fine' pointing device.  On Firefox
+// browsers, this may include all touch devices.
 @mixin only-touch() {
   @media #{_media("screen", "touch")} {
     @content;
   }
 }
 
+// Wraps the given content in a parent CSS selector that
+// targets only browsers without CSS Media Query 4 capabilities.
+// Requires xq-detect's JS in the head of the document.
 @mixin only-fallback() {
   #{_target("fallback")} {
     @content;
   }
 }
 
+// Wraps the given content in a parent CSS selector that targets
+// only browser without CSS (standard) flexbox capabilities.
+// NOTE:  This mixin will not include IE10!
+//
+// Requires xq-detect's JS in the head of the document.
 @mixin only-baseline() {
   #{_target("baseline")} {
     @content;
   }
 }
 
+// Wraps the given content in a parent CSS selector that targets
+// only Safari browsers.
+//
+// IMPORTANT:  This uses the user agent, and should only be used
+//             for minimal hacks that tweak appearance.
+//
+// NOTE:       Requires xq-detect's JS in the head of the document.
 @mixin only-safari() {
   #{_target("safari")} {
     @content;
   }
 }
 
+// Wraps the given content in a parent CSS selector that targets
+// only Safari 10 browsers.
+//
+// IMPORTANT:  This uses the user agent, and should only be used
+//             for minimal hacks that tweak appearance.
+//
+// NOTE:       Requires xq-detect's JS in the head of the document.
 @mixin only-safari-10() {
   #{_target("safari")} {
     @content;
   }
 }
 
+// Wraps the given content in a parent CSS selector that targets
+// only Microsoft Edge
+//
+// IMPORTANT:  This uses the user agent, and should only be used
+//             for minimal hacks that tweak appearance.
+//
+// NOTE:       Requires xq-detect's JS in the head of the document.
 @mixin only-edge() {
   #{_target("edge")} {
     @content;
   }
 }
 
+// Wraps the given content in a parent CSS selector that targets
+// only Internet Explorer browsers.
+//
+// IMPORTANT:  This uses the user agent, and should only be used
+//             for minimal hacks that tweak appearance.
+//
+// NOTE:       Requires xq-detect's JS in the head of the document.
 @mixin only-ie() {
   #{_target("ie")} {
     @content;
   }
 }
 
+// Wraps the given content in a parent CSS selector that targets
+// only Internet Explorer 10.
+//
+// IMPORTANT:  This uses the user agent, and should only be used
+//             for minimal hacks that tweak appearance.
+//
+// NOTE:       Requires xq-detect's JS in the head of the document.
 @mixin only-ie-10() {
   #{_target("ie 10")} {
+    @content;
+  }
+}
+
+// Wraps the given content in a parent CSS selector that targets
+// only Internet Explorer 11.
+//
+// IMPORTANT:  This uses the user agent, and should only be used
+//             for minimal hacks that tweak appearance.
+//
+// NOTE:       Requires xq-detect's JS in the head of the document.
+@mixin only-ie-11() {
+  #{_target("ie 11")} {
     @content;
   }
 }

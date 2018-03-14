@@ -1,5 +1,10 @@
 @import "rwd-variables";
+@import "strapless/base/scss/functions/map";
 
+// region //////////////////////////////////////////////// String Functions
+
+// Explodes a string into a SASS list by the given delimiter
+// @author Hugo Giraudel (modified from original)
 @function _str-explode($string, $delimiter: "") {
   $result: ();
   $length: str-length($string);
@@ -30,7 +35,71 @@
   @return append($result, $remaining);
 }
 
+// endregion ///////////////////////////////////////////// End String Functions
 
+// region //////////////////////////////////////////////// Breakpoint Functions
+
+// Returns -breakpoint for adding into class selectors.
+// For breakpoints with no minimum size, returns null.
+@function breakpoint-infix($bp) {
+  @if variable-exists(grid-breakpoints) == false {
+    @error 'You must set the $grid-breakpoints map prior to the first usage of the `breakpoint-infix` function.';
+  }
+  @if map-has-key($grid-breakpoints, $bp) {
+    $min: strip-unit(map-get($grid-breakpoints, $bp));
+    @if $min > 0 {
+      @return -#{$bp};
+    }
+  }
+
+  @return null;
+}
+
+// Returns the max width for the given breakpoint.
+@function breakpoint($breakpoint) {
+  @if map-has-key($grid-breakpoints,$breakpoint) {
+    @return map-get($grid-breakpoints, $breakpoint);
+  }
+
+  @error "The breakpoint `#{$breakpoint} does not exist in the $grid-breakpoints map.";
+}
+
+// Returns the max container width for the given breakpoint.
+@function container($breakpoint) {
+  @if map-has-key($container-max-widths,$breakpoint) {
+    @return map-get($container-max-widths, $breakpoint);
+  }
+
+  @error "The breakpoint `#{$breakpoint} does not exist in the $container-max-widths map.";
+}
+
+// Sets the width for a given breakpoint to the given value
+// This is a mixin, as SASS functions should not have consequences.
+@mixin set-breakpoint($breakpoint,$value) {
+  @if not(variable-exists(grid-breakpoints)) {
+    @error "You may not use the `set-breakpoint` mixin without the $grid-breakpoints map.  Please include `root-variables` prior to this usage."
+  } @else {
+    $grid-breakpoints: set-map-key($grid-breakpoints, $breakpoint, $value) !global;
+  }
+}
+
+// Sets the container max width for the given breakpoint to
+// the given value.  This is a mixin, as SASS functions should
+// not have consequences.
+@mixin set-max-width($breakpoint,$value) {
+  @if not(variable-exists(container-max-widths)) {
+    @error "You may not use the `set-max-width` mixin without the $container-max-widths map.  Please include `root-variables` prior to this usage."
+  } @else {
+    $container-max-widths: set-map-key($container-max-widths, $breakpoint, $value) !global;
+  }
+}
+
+// endregion ///////////////////////////////////////////// End Breakpoint Functions
+
+// region //////////////////////////////////////////////// Media Expression Functions
+
+// Gets the operator prefixing a value in an expression.
+// @author Hugo Giraudel
 @function get-expression-operator($expression) {
   @each $operator in ('>=', '<=', '>', '<', '≥', '≤', '=') {
     @if str-index($expression, $operator) {
@@ -41,12 +110,16 @@
   @return '';
 }
 
+// Gets the value of an expression given the prefixing operator.
+// @author Hugo Giraudel
 @function get-expression-value($expression, $operator) {
   $operator-index: str-index($expression, $operator);
   $value: str-slice($expression, $operator-index + str-length($operator));
   @return $value;
 }
 
+// Returns the proper condition string to use in a CSS media
+// query for the given minimum and maximum width.
 @function get-width-string($operator, $min: 0, $max: 0) {
   @if $operator == '≥' {  $operator: '>='; }
   @if $operator == '≤' {  $operator: '<='; }
@@ -69,7 +142,10 @@
   @return '';
 }
 
-@function get-condition-string($viewport,$operator) {
+// Returns the proper condition string to use in a CSS media
+// query for the given breakpoint.  The $grid-breakpoints
+// variable must be accessible for this function.
+@function get-breakpoint-string($viewport,$operator) {
   @each $class, $min in $grid-breakpoints {
     @if($class == $viewport) {
       $max: map-get-next($grid-breakpoints,$class, 0);
@@ -80,6 +156,7 @@
   @return '';
 }
 
+// Determines if the string given is a CSS media type.
 @function is-media-type($string) {
   @if type-of($string) == string {
     $types: (all, print, screen, speech, tty, tv, projection, handheld, braille, embossed, aural);
@@ -94,14 +171,11 @@
   @return false;
 }
 
-@function add-condition($conditions-string, $new-string) {
-  @if type-of($conditions-string) == null {
-    @if not(is-media-type($new-string)) {
-      $conditions-string: unquote("all");
-    }
-  }
-}
+// endregion ///////////////////////////////////////////// End Media Expression Functions
 
+// region //////////////////////////////////////////////// Selector/Media Targeting Functions
+
+// Returns media query for the given conditions.
 @function _media($conditions...) {
   $compiled-list: ();
   @for $i from 1 through length($conditions) {
@@ -115,7 +189,7 @@
       $value: get-expression-value($condition,$operator);
       @if map-has-key($grid-breakpoints, $value) {
         // Breakpoint Based Conditions
-        $compiled-list: append($compiled-list, get-condition-string($value, $operator), comma);
+        $compiled-list: append($compiled-list, get-breakpoint-string($value, $operator), comma);
       } @else {
         // Width Based Condition
         $compiled-list: append($compiled-list, get-width-string($operator,$value,$value), comma );
@@ -148,6 +222,9 @@
   @return $conditions-string;
 }
 
+// Returns selector for targeting a specific browser based on a user
+// agent placed in the HTML tag by xq-detect.  As user agents can easily
+// be spoofed, this should only be used for minimal 'hacks'.
 @function _browser-target($browser, $version: null, $negate: false) {
   $sep: '';
   @if map-has-key($target-user-agent,$browser) {
@@ -161,6 +238,9 @@
   @return null;
 }
 
+// Returns selector targeting a specific feature that cannot
+// be targeted with media queries.  Requires usage of xq-detect
+// in the head of the document.  Also works with Modernizr.
 @function _feature-target($feature, $negate: false) {
   @if map-has-key($target-feature, $feature) {
     $sel: unquote(map-get($target-feature, $feature));
@@ -171,7 +251,7 @@
   @return null;
 }
 
-
+// Returns selector for given targets
 @function _target($targets...) {
   $class: '';
   $ua: '';
@@ -192,3 +272,6 @@
 
   @return unquote('html#{$class}#{$ua}');
 }
+
+
+// endregion ///////////////////////////////////////////// End Selector/Media Targeting Functions

@@ -1,4 +1,6 @@
 
+// region //////////////////////////////////////////////// Breakpoints
+
 $grid-breakpoints: (
         xs: 0,
         sm: 576px,
@@ -14,6 +16,11 @@ $container-max-widths: (
         xl: 1140px
 ) !default;
 
+// endregion ///////////////////////////////////////////// End Breakpoints
+
+// region //////////////////////////////////////////////// Targeting Maps
+
+// Media Query Targets
 $condition-map: (
         "screen": "screen",
         "print" : "print ",
@@ -23,13 +30,17 @@ $condition-map: (
         "hidpi" : "(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 144dpi)"
 );
 
+// Feature-Based Targets (requires d.js)
 $target-feature: (
         "fallback"  : '.fallback',
         "baseline"  : '.baseline',
 );
 
+// User-Agent Based Targets (requires d.js)
 $target-user-agent: (
         "ie"        : "Trident",
         "edge"      : "Edge",
         "safari"    : "Version",
 );
+
+// endregion ///////////////////////////////////////////// End Targeting Maps
