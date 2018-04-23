@@ -1,4 +1,6 @@
 
+$enable-framework:  false;
+
 // region //////////////////////////////////////////////// Breakpoints
 
 $grid-breakpoints: (
@@ -23,11 +25,11 @@ $container-max-widths: (
 // Media Query Targets
 $condition-map: (
         "screen": "screen",
-        "print" : "print ",
-        "coarse": "(pointer: fine)",
-        "touch" : "(pointer: coarse), (-moz-touch-enabled)",
-        "fine"  : "(pointer: fine), not all and (-moz-touch-enabled)",
-        "hidpi" : "(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 144dpi)"
+        "print" : "print",
+        "coarse": "screen and (pointer: coarse)",
+        "touch" : ("handheld", "screen and (pointer: coarse)", "screen and (-moz-touch-enabled)"),
+        "fine"  : ("screen and (pointer: fine)", "not (-moz-touch-enabled)"),
+        "hidpi" : ("screen and (-webkit-min-device-pixel-ratio: 1.5)", "screen and (min-resolution: 144dpi)")
 );
 
 // Feature-Based Targets (requires d.js)

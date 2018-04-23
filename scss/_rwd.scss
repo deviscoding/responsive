@@ -1,2 +1,11 @@
 
 @import "rwd-mixins";
+
+// If not in framework, output responsive breakpoint detection.
+@if variable-exists(enable-framework) {
+  @if not($enable-framework) {
+    @each $bp, $min in $grid-breakpoints {
+      @include responsive-breakpoint($bp);
+    }
+  }
+}

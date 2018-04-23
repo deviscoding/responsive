@@ -1,12 +1,17 @@
 @import "rwd-variables";
 @import "rwd-functions";
 
+// Inserts a psuedo-element used to detect the current breakpoint.
+@mixin responsive-breakpoint($breakpoint) {
+  body::before { content: "#{$breakpoint}"; display: none !important; }
+}
+
 // Wraps the given content in the appropriate media
 // query for the given conditions.  If no media type
 // is included in the conditions, the 'all' media type
 // is used.
 @mixin media($conditions...) {
-  @media #{_media($conditions...)} {
+  @media #{media-condition($conditions...)} {
     @content;
   }
 }
@@ -15,7 +20,7 @@
 // devices without a 'fine' pointing device.  On Firefox
 // browsers, this may include all touch devices.
 @mixin only-touch() {
-  @media #{_media("screen", "touch")} {
+  @media #{media-condition("touch")} {
     @content;
   }
 }
