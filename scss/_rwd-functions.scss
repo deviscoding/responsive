@@ -143,27 +143,32 @@
 @function media-condition($conditions...) {
   $compiled-list: ();
   @for $i from 1 through length($conditions) {
-    $condition: unquote(quote(nth($conditions,$i)));
-    // Basic String Conditions
-    @if map-has-key($condition-map, $condition) {
-      $pre: map-get($condition-map,$condition);
-      @if(type-of($pre) == list) {
-       @for $ii from 1 through length($pre) {
-         $part: unquote(quote(nth($pre,$ii)));
-         $compiled-list: append( $compiled-list, $part, comma );
-       }
-      } @else {
-        $compiled-list: append( $compiled-list, map-get( $condition-map,$condition ), comma );
-      }
+    $nth: nth($conditions,$i);
+    @if(type-of($nth) == list) {
+      $compiled-list: append($compiled-list, media-condition($nth), comma );
     } @else {
-      $operator: get-expression-operator($condition);
-      $value: get-expression-value($condition,$operator);
-      @if map-has-key($grid-breakpoints, $value) {
-        // Breakpoint Based Conditions
-        $compiled-list: append($compiled-list, get-breakpoint-string($value, $operator), comma);
+      $condition: unquote(quote(nth($conditions,$i)));
+      // Basic String Conditions
+      @if map-has-key($condition-map, $condition) {
+        $pre: map-get($condition-map,$condition);
+        @if(type-of($pre) == list) {
+          @for $ii from 1 through length($pre) {
+            $part: unquote(quote(nth($pre,$ii)));
+            $compiled-list: append( $compiled-list, $part, comma );
+          }
+        } @else {
+          $compiled-list: append( $compiled-list, map-get( $condition-map,$condition ), comma );
+        }
       } @else {
-        // Width Based Condition
-        $compiled-list: append($compiled-list, get-width-string($operator,$value,$value), comma );
+        $operator: get-expression-operator($condition);
+        $value: get-expression-value($condition,$operator);
+        @if map-has-key($grid-breakpoints, $value) {
+          // Breakpoint Based Conditions
+          $compiled-list: append($compiled-list, get-breakpoint-string($value, $operator), comma);
+        } @else {
+          // Width Based Condition
+          $compiled-list: append($compiled-list, get-width-string($operator,$value,$value), comma );
+        }
       }
     }
   }
