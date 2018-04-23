@@ -19,6 +19,6 @@
   "license": "MIT",
   "require": {
     "strapless/base": "^2.0",
-    "exactquery/xq-detect": "^2.2"
+    "exactquery/xq-detect": "^3.0"
   }
 }
