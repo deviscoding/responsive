@@ -147,7 +147,7 @@
     @if(type-of($nth) == list) {
       $compiled-list: append($compiled-list, media-condition($nth), comma );
     } @else {
-      $condition: unquote(quote(nth($conditions,$i)));
+      $condition: unquote(quote($nth));
       // Basic String Conditions
       @if map-has-key($condition-map, $condition) {
         $pre: map-get($condition-map,$condition);
@@ -161,13 +161,17 @@
         }
       } @else {
         $operator: get-expression-operator($condition);
-        $value: get-expression-value($condition,$operator);
-        @if map-has-key($grid-breakpoints, $value) {
-          // Breakpoint Based Conditions
-          $compiled-list: append($compiled-list, get-breakpoint-string($value, $operator), comma);
+        @if $operator != unquote("") {
+          $value: get-expression-value($condition,$operator);
+          @if map-has-key($grid-breakpoints, $value) {
+            // Breakpoint Based Conditions
+            $compiled-list: append($compiled-list, get-breakpoint-string($value, $operator), comma);
+          } @else {
+            // Width Based Condition
+            $compiled-list: append($compiled-list, get-width-string($operator,$value,$value), comma );
+          }
         } @else {
-          // Width Based Condition
-          $compiled-list: append($compiled-list, get-width-string($operator,$value,$value), comma );
+          $compiled-list: append($compiled-list, $condition, comma );
         }
       }
     }
@@ -180,7 +184,11 @@
     $sep: '';
 
     @if $conditions-string != '' {
-      $sep: unquote(", ");
+      @if $last != "and" {
+        $sep: unquote(", ");
+      } @else {
+        $sep: unquote(" ");
+      }
     }
 
     $conditions-string: $conditions-string + $sep + $this;
