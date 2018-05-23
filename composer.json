@@ -1,5 +1,5 @@
 {
-  "name": "strapless/responsive",
+  "name": "deviscoding/responsive",
   "description": "SASS utilities for responsive web design.",
   "keywords": [
       "responsive",
@@ -8,8 +8,8 @@
       "strapless",
       "rwd"
   ],
-  "homepage": "https://www.github.com/strapless/responsive",
-  "version": "1.0.2",
+  "homepage": "https://www.github.com/deviscoding/responsive",
+  "version": "1.0.3",
   "authors": [
       {
           "name": "Aaron M Jones",
@@ -18,7 +18,7 @@
   ],
   "license": "MIT",
   "require": {
-    "strapless/base": "^2.0",
-    "exactquery/xq-detect": "^3.0"
+    "deviscoding/base": "^2.0",
+    "deviscoding/xq-detect": "^3.0"
   }
 }
