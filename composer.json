@@ -9,7 +9,7 @@
       "rwd"
   ],
   "homepage": "https://www.github.com/deviscoding/responsive",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "authors": [
       {
           "name": "Aaron M Jones",
@@ -19,6 +19,6 @@
   "license": "MIT",
   "require": {
     "deviscoding/base": "^2.0",
-    "deviscoding/xq-detect": "^3.0"
+    "deviscoding/device": "^3.0"
   }
 }
