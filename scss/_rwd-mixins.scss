@@ -16,11 +16,49 @@
   }
 }
 
-// Wraps the given content in a media query targeting
-// devices without a 'fine' pointing device.  On Firefox
-// browsers, this may include all touch devices.
-@mixin only-touch() {
-  @media #{media-condition("touch")} {
+// Encloses the content in a media query intended for devices reporting 'pointer:coarse'.
+// Works with poly-pointer polyfill.
+//
+// Any additional media queries given will be appended to each of the necessary queries.
+//
+// @param  {List|String} $and - Additional media queries to add.
+@mixin only-touch($and: null) {
+
+  $joiner: unquote(" and ");
+  $suffix: "";
+
+  @if $and != null {
+    @if type-of($and) == "list" {
+      @each $item in $and {
+        // Get Surrounded by Parenthesis if Needed
+        $tItem: parenthesis($item, true);
+        // Add The ' and '
+        $suffix: #{$suffix}#{$joiner}#{$tItem};
+      }
+    } @else {
+      $suffix: #{$joiner}#{parenthesis($and,true)};
+    }
+  }
+
+  // Get the Touch Conditions from Conditions Map
+  $touch-conditions: ();
+  @if(map-has-key($condition-map,"touch")) {
+    $touch-conditions: map-get($condition-map,"touch");
+  } @else {
+    @error "You must have a 'touch' key in your $conditions-map.";
+  }
+
+  // Put it all together, separated by ,'s. This could be done inline in the output, but that generates
+  // inspection errors in many SASS inspectors, so avoiding it here.
+  $query: "";
+  $sep: unquote(", ");
+  @each $part in $touch-conditions {
+    $tPart: unquote(quote($part));
+    $query: if(str-length($query) > 0, #{$query}#{$sep}#{$part}#{$suffix}, #{$part}#{$suffix});
+  }
+
+  // Output
+  @media #{$query} {
     @content;
   }
 }
@@ -119,6 +157,30 @@
 // NOTE:       Requires xq-detect's JS in the head of the document.
 @mixin only-ie-11() {
   #{_target("ie 11")} {
+    @content;
+  }
+}
+
+@mixin only-android() {
+  #{_target("android")} {
+    @content;
+  }
+}
+
+@mixin only-ios() {
+  #{_target("ios")} {
+    @content;
+  }
+}
+
+@mixin only-mac() {
+  #{_target("mac")} {
+    @content;
+  }
+}
+
+@mixin only-windows() {
+  #{_target("windows")} {
     @content;
   }
 }

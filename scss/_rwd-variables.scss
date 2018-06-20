@@ -1,5 +1,5 @@
 
-$enable-framework:  false;
+$enable-framework:  false !default;
 
 // region //////////////////////////////////////////////// Breakpoints
 
@@ -36,6 +36,8 @@ $condition-map: (
 $target-feature: (
         "fallback"  : '.fallback',
         "baseline"  : '.baseline',
+        "ios"       : '.ios',
+        "android"   : '.android'
 );
 
 // User-Agent Based Targets (requires d.js)
@@ -43,6 +45,8 @@ $target-user-agent: (
         "ie"        : "Trident",
         "edge"      : "Edge",
         "safari"    : "Version",
+        "windows"   : "Windows NT",
+        "mac"       : "Macintosh"
 );
 
 // endregion ///////////////////////////////////////////// End Targeting Maps
